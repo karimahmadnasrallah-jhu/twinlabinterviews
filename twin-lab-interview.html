@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWIN Lab — Research Position Interview</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --ink:#1c2430;
+    --paper:#f6f3ec;
+    --card:#ffffff;
+    --navy:#1b3350;
+    --teal:#4f7d78;
+    --rust:#b6543c;
+    --line:#dcd6c8;
+    --muted:#6b6656;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .ui{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  }
+  .stage{
+    width:100%;
+    max-width:560px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:40px 36px;
+  }
+  .eyebrow{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:0.02em;
+    margin:0 0 6px 0;
+  }
+  h1{
+    font-size:26px;
+    line-height:1.3;
+    margin:0 0 18px 0;
+    color:var(--navy);
+    font-weight:normal;
+  }
+  p{
+    line-height:1.6;
+    color:var(--ink);
+  }
+  .muted{color:var(--muted); font-size:15px;}
+  label{
+    display:block;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:14px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  input[type=text]{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    font-size:16px;
+    font-family:Georgia,serif;
+    margin-bottom:20px;
+    background:var(--paper);
+  }
+  button{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:13px 22px;
+    font-size:15px;
+    border-radius:3px;
+    cursor:pointer;
+  }
+  button:disabled{background:#a9a396; cursor:not-allowed;}
+  button.secondary{
+    background:transparent;
+    color:var(--navy);
+    border:1px solid var(--navy);
+  }
+  .progress{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:14px;
+  }
+  .question-text{
+    font-size:23px;
+    line-height:1.4;
+    color:var(--navy);
+    margin:0 0 28px 0;
+  }
+  .timer-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:22px;
+  }
+  .timer-ring{
+    position:relative;
+    width:64px;
+    height:64px;
+    flex:none;
+  }
+  .timer-ring svg{transform:rotate(-90deg);}
+  .timer-ring circle{
+    fill:none;
+    stroke-width:5;
+  }
+  .timer-ring .bg{stroke:var(--line);}
+  .timer-ring .fg{stroke:var(--teal); transition:stroke-dashoffset 1s linear;}
+  .timer-ring.rec .fg{stroke:var(--rust);}
+  .timer-num{
+    position:absolute;
+    top:0; left:0; width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:16px;
+    color:var(--navy);
+  }
+  .timer-label{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:14px;
+    color:var(--muted);
+  }
+  .rec-dot{
+    display:inline-block;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--rust);
+    margin-right:7px;
+    animation:pulse 1.2s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.3;}
+  }
+  video{
+    width:100%;
+    border-radius:3px;
+    background:#000;
+    margin-bottom:20px;
+    display:block;
+  }
+  .note{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:13px;
+    color:var(--muted);
+    border-top:1px solid var(--line);
+    padding-top:16px;
+    margin-top:22px;
+  }
+  .hidden{display:none !important;}
+  .clip-list{
+    list-style:none;
+    padding:0;
+    margin:0 0 22px 0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:14px;
+  }
+  .clip-list li{
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    color:var(--ink);
+  }
+  .error-box{
+    background:#f7e9e5;
+    border:1px solid var(--rust);
+    color:var(--rust);
+    padding:14px 16px;
+    border-radius:3px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    font-size:14px;
+    margin-bottom:18px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="card">
+
+    <!-- START SCREEN -->
+    <div id="screen-start">
+      <p class="eyebrow ui">TWIN LAB · CENTER FOR FETAL THERAPY</p>
+      <h1>Research Position Interview</h1>
+      <p class="muted">You'll be shown each question for 30 seconds, then recording begins automatically for 90 seconds. Recording stops on its own — there's nothing to click mid‑answer, and no retakes. Please use a quiet space with your camera and microphone enabled.</p>
+      <label class="ui" for="candidate-name">Your full name</label>
+      <input type="text" id="candidate-name" placeholder="e.g. Jordan Lee">
+      <button id="btn-start" class="ui">Check camera &amp; begin</button>
+    </div>
+
+    <!-- CAMERA CHECK SCREEN -->
+    <div id="screen-check" class="hidden">
+      <p class="eyebrow ui">CAMERA CHECK</p>
+      <h1>Make sure we can see and hear you</h1>
+      <video id="preview-video" autoplay muted playsinline></video>
+      <div id="check-error" class="error-box hidden ui"></div>
+      <button id="btn-check-continue" class="ui" disabled>Looks good — start question 1</button>
+    </div>
+
+    <!-- QUESTION SCREEN -->
+    <div id="screen-question" class="hidden">
+      <p class="progress ui" id="progress-label"></p>
+      <p class="question-text" id="question-text"></p>
+      <div class="timer-row">
+        <div class="timer-ring" id="timer-ring">
+          <svg width="64" height="64">
+            <circle class="bg" cx="32" cy="32" r="27"></circle>
+            <circle class="fg" id="timer-circle" cx="32" cy="32" r="27"></circle>
+          </svg>
+          <div class="timer-num ui" id="timer-num">30</div>
+        </div>
+        <div class="timer-label ui" id="timer-label">Read the question. Recording starts automatically.</div>
+      </div>
+      <video id="record-video" autoplay muted playsinline class="hidden"></video>
+    </div>
+
+    <!-- FINISH SCREEN -->
+    <div id="screen-finish" class="hidden">
+      <p class="eyebrow ui">ALL QUESTIONS COMPLETE</p>
+      <h1>Thank you — your interview is ready to submit</h1>
+      <p class="muted">Your responses have been packaged into a single file below. Download it, then send it to us using the instructions your recruiter provided.</p>
+      <ul class="clip-list" id="clip-list"></ul>
+      <button id="btn-download" class="ui">Download my responses (.zip)</button>
+      <p class="note">If the download doesn't start automatically, use the button above. Your video never leaves this device until you send the file yourself.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EDIT THIS SECTION to customize questions and instructions.
+   ============================================================ */
+const QUESTIONS = [
+  "Tell us about a research project or lab experience you're proud of, and what your specific role was.",
+  "Describe a time you had to learn a new technique or piece of equipment quickly. How did you approach it?",
+  "Why are you interested in fetal therapy / maternal-fetal medicine research specifically?",
+  "Tell us about a time a project or experiment didn't go as planned. What did you do?"
+];
+const PREP_SECONDS = 30;
+const RECORD_SECONDS = 90;
+/* ============================================================ */
+
+let stream = null;
+let recorder = null;
+let chunks = [];
+let clips = []; // {name, blob}
+let currentQ = 0;
+let candidateName = "";
+
+const screens = {
+  start: document.getElementById('screen-start'),
+  check: document.getElementById('screen-check'),
+  question: document.getElementById('screen-question'),
+  finish: document.getElementById('screen-finish'),
+};
+
+function show(screenKey){
+  Object.values(screens).forEach(s => s.classList.add('hidden'));
+  screens[screenKey].classList.remove('hidden');
+}
+
+document.getElementById('btn-start').addEventListener('click', async () => {
+  const nameInput = document.getElementById('candidate-name');
+  if(!nameInput.value.trim()){
+    nameInput.style.borderColor = '#b6543c';
+    nameInput.focus();
+    return;
+  }
+  candidateName = nameInput.value.trim();
+  show('check');
+  await initCamera();
+});
+
+async function initCamera(){
+  const errBox = document.getElementById('check-error');
+  const previewVideo = document.getElementById('preview-video');
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+    previewVideo.srcObject = stream;
+    document.getElementById('btn-check-continue').disabled = false;
+    errBox.classList.add('hidden');
+  }catch(err){
+    errBox.textContent = "We couldn't access your camera or microphone. Please allow camera/microphone permissions in your browser and reload this page.";
+    errBox.classList.remove('hidden');
+  }
+}
+
+document.getElementById('btn-check-continue').addEventListener('click', () => {
+  currentQ = 0;
+  show('question');
+  runQuestion(currentQ);
+});
+
+function setRing(percentRemaining, recording){
+  const circle = document.getElementById('timer-circle');
+  const ring = document.getElementById('timer-ring');
+  const circumference = 2 * Math.PI * 27;
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference * (1 - percentRemaining);
+  ring.classList.toggle('rec', !!recording);
+}
+
+function runQuestion(index){
+  const q = QUESTIONS[index];
+  document.getElementById('progress-label').textContent = `QUESTION ${index+1} OF ${QUESTIONS.length}`;
+  document.getElementById('question-text').textContent = q;
+  document.getElementById('timer-label').textContent = 'Read the question. Recording starts automatically.';
+  document.getElementById('record-video').classList.add('hidden');
+
+  let remaining = PREP_SECONDS;
+  document.getElementById('timer-num').textContent = remaining;
+  setRing(remaining / PREP_SECONDS, false);
+
+  const prepInterval = setInterval(() => {
+    remaining--;
+    document.getElementById('timer-num').textContent = remaining;
+    setRing(remaining / PREP_SECONDS, false);
+    if(remaining <= 0){
+      clearInterval(prepInterval);
+      startRecording(index);
+    }
+  }, 1000);
+}
+
+function startRecording(index){
+  const recordVideo = document.getElementById('record-video');
+  recordVideo.classList.remove('hidden');
+  recordVideo.srcObject = stream;
+  document.getElementById('timer-label').innerHTML = '<span class="rec-dot"></span>Recording your answer now';
+
+  chunks = [];
+  let mimeType = 'video/webm;codecs=vp9,opus';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+  recorder = new MediaRecorder(stream, {mimeType});
+  recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, {type:'video/webm'});
+    clips.push({name:`Q${index+1}`, blob});
+    advance(index);
+  };
+  recorder.start();
+
+  let remaining = RECORD_SECONDS;
+  document.getElementById('timer-num').textContent = remaining;
+  setRing(remaining / RECORD_SECONDS, true);
+
+  const recInterval = setInterval(() => {
+    remaining--;
+    document.getElementById('timer-num').textContent = remaining;
+    setRing(remaining / RECORD_SECONDS, true);
+    if(remaining <= 0){
+      clearInterval(recInterval);
+      if(recorder.state !== 'inactive') recorder.stop();
+    }
+  }, 1000);
+}
+
+function advance(index){
+  if(index + 1 < QUESTIONS.length){
+    currentQ = index + 1;
+    runQuestion(currentQ);
+  }else{
+    finishInterview();
+  }
+}
+
+function finishInterview(){
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+  }
+  show('finish');
+  const list = document.getElementById('clip-list');
+  list.innerHTML = '';
+  clips.forEach(c => {
+    const li = document.createElement('li');
+    li.textContent = `${c.name} — recorded (${Math.round(c.blob.size/1024)} KB)`;
+    list.appendChild(li);
+  });
+  buildAndOfferZip();
+}
+
+async function buildAndOfferZip(){
+  const zip = new JSZip();
+  const safeName = candidateName.replace(/[^a-z0-9]+/gi, '_');
+  clips.forEach(c => {
+    zip.file(`${safeName}_${c.name}.webm`, c.blob);
+  });
+  const content = await zip.generateAsync({type:'blob'});
+  const url = URL.createObjectURL(content);
+  const filename = `${safeName}_interview.zip`;
+
+  document.getElementById('btn-download').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  // auto-trigger once
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+</body>
+</html>
