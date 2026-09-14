@@ -7,19 +7,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root{
-    --ink:#1c2430;
-    --paper:#f6f3ec;
+    --ink:#0f1c2e;
+    --paper:#eef3f9;
     --card:#ffffff;
-    --navy:#1b3350;
-    --teal:#4f7d78;
-    --rust:#b6543c;
-    --line:#dcd6c8;
-    --muted:#6b6656;
+    --navy:#002D72;
+    --teal:#68ACE5;
+    --rust:#c1272d;
+    --amber:#c1272d;
+    --line:#cfdcec;
+    --muted:#5b6b80;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--paper);
+    background:linear-gradient(180deg,#eef3f9 0%,#e2ebf6 100%);
     color:var(--ink);
     font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;
     min-height:100vh;
@@ -38,8 +39,10 @@
   .card{
     background:var(--card);
     border:1px solid var(--line);
+    border-top:5px solid var(--navy);
     border-radius:4px;
     padding:40px 36px;
+    box-shadow:0 10px 30px rgba(0,45,114,0.08);
   }
   .eyebrow{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
@@ -249,10 +252,10 @@
    EDIT THIS SECTION to customize questions and instructions.
    ============================================================ */
 const QUESTIONS = [
-  "Tell us about a research project or lab experience you're proud of, and what your specific role was.",
-  "Describe a time you had to learn a new technique or piece of equipment quickly. How did you approach it?",
-  "Why are you interested in fetal therapy / maternal-fetal medicine research specifically?",
-  "Tell us about a time a project or experiment didn't go as planned. What did you do?"
+  "Tell us a little about yourself.",
+  "Ethical scenario: It's the day before our weekly lab meeting, and between Hopkins test season and everything else on your plate, you haven't done your lab work in two weeks. What do you do? How would you prevent this from happening again?",
+  "Ethical scenario: You're working on a research study with an upcoming submission deadline, and you're concerned there may be an error in the data. What do you do?",
+  "Ethical scenario: You're working with another team member on a project, but they aren't holding up their end of the work. You're concerned about their understanding of the project and their ability to contribute equally. What do you do?"
 ];
 const PREP_SECONDS = 30;
 const RECORD_SECONDS = 90;
@@ -333,6 +336,13 @@ function runQuestion(index){
     remaining--;
     document.getElementById('timer-num').textContent = remaining;
     setRing(remaining / PREP_SECONDS, false);
+
+    if(remaining <= 5 && remaining > 0){
+      document.getElementById('timer-label').innerHTML =
+        `<strong style="color:var(--amber);">Recording starts in ${remaining}…</strong> get ready.`;
+      document.getElementById('timer-ring').classList.add('rec');
+    }
+
     if(remaining <= 0){
       clearInterval(prepInterval);
       startRecording(index);
