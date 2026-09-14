@@ -114,6 +114,10 @@
     color:var(--navy);
     border:1.5px solid var(--navy);
   }
+  #btn-skip{
+    display:block;
+    margin-top:4px;
+  }
   .progress{
     font-family:"Inter",sans-serif;
     font-size:13.5px;
@@ -256,6 +260,7 @@
         <div class="timer-label ui" id="timer-label">Read the question. Recording starts automatically.</div>
       </div>
       <video id="record-video" autoplay muted playsinline class="hidden"></video>
+      <button id="btn-skip" class="secondary ui hidden" type="button">Skip ahead — I'm ready</button>
     </div>
 
     <!-- FINISH SCREEN -->
@@ -293,6 +298,8 @@ let chunks = [];
 let clips = []; // {name, blob}
 let currentQ = 0;
 let candidateName = "";
+let activeInterval = null;
+let currentPhase = null; // 'prep' or 'recording'
 
 const screens = {
   start: document.getElementById('screen-start'),
@@ -354,11 +361,17 @@ function runQuestion(index){
   document.getElementById('timer-label').textContent = 'Read the question. Recording starts automatically.';
   document.getElementById('record-video').classList.add('hidden');
 
+  currentPhase = 'prep';
+  const skipBtn = document.getElementById('btn-skip');
+  skipBtn.textContent = "Skip ahead — I'm ready";
+  skipBtn.classList.remove('hidden');
+
   let remaining = PREP_SECONDS;
   document.getElementById('timer-num').textContent = remaining;
   setRing(remaining / PREP_SECONDS, false);
+  document.getElementById('timer-ring').classList.remove('rec');
 
-  const prepInterval = setInterval(() => {
+  activeInterval = setInterval(() => {
     remaining--;
     document.getElementById('timer-num').textContent = remaining;
     setRing(remaining / PREP_SECONDS, false);
@@ -370,17 +383,22 @@ function runQuestion(index){
     }
 
     if(remaining <= 0){
-      clearInterval(prepInterval);
+      clearInterval(activeInterval);
       startRecording(index);
     }
   }, 1000);
 }
 
 function startRecording(index){
+  currentPhase = 'recording';
   const recordVideo = document.getElementById('record-video');
   recordVideo.classList.remove('hidden');
   recordVideo.srcObject = stream;
   document.getElementById('timer-label').innerHTML = '<span class="rec-dot"></span>Recording your answer now';
+
+  const skipBtn = document.getElementById('btn-skip');
+  skipBtn.textContent = "Finish answering now";
+  skipBtn.classList.remove('hidden');
 
   chunks = [];
   let mimeType = 'video/webm;codecs=vp9,opus';
@@ -398,16 +416,26 @@ function startRecording(index){
   document.getElementById('timer-num').textContent = remaining;
   setRing(remaining / RECORD_SECONDS, true);
 
-  const recInterval = setInterval(() => {
+  activeInterval = setInterval(() => {
     remaining--;
     document.getElementById('timer-num').textContent = remaining;
     setRing(remaining / RECORD_SECONDS, true);
     if(remaining <= 0){
-      clearInterval(recInterval);
+      clearInterval(activeInterval);
       if(recorder.state !== 'inactive') recorder.stop();
     }
   }, 1000);
 }
+
+document.getElementById('btn-skip').addEventListener('click', () => {
+  clearInterval(activeInterval);
+  if(currentPhase === 'prep'){
+    startRecording(currentQ);
+  }else if(currentPhase === 'recording'){
+    document.getElementById('btn-skip').classList.add('hidden');
+    if(recorder && recorder.state !== 'inactive') recorder.stop();
+  }
+});
 
 function advance(index){
   if(index + 1 < QUESTIONS.length){
@@ -422,6 +450,7 @@ function finishInterview(){
   if(stream){
     stream.getTracks().forEach(t => t.stop());
   }
+  document.getElementById('btn-skip').classList.add('hidden');
   show('finish');
   const list = document.getElementById('clip-list');
   list.innerHTML = '';
